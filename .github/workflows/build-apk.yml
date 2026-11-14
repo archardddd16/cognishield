@@ -1,0 +1,40 @@
+name: Build CogniShield APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+
+jobs:
+  apk:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: cognishield/app
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Generate Android project
+        run: flutter create . --project-name cognishield --platforms=android
+
+      - name: Install native Notification Guard module
+        shell: pwsh
+        run: ./setup_android.ps1
+
+      - run: flutter pub get
+
+      - run: flutter build apk --release
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cognishield-apk
+          path: cognishield/app/build/app/outputs/flutter-apk/app-release.apk
