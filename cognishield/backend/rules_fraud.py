@@ -1,0 +1,73 @@
+"""Detection rules, part 2: investment, gambling, loans, jobs, impersonation."""
+
+RULES = [
+    # ---- investment / crypto -------------------------------------------
+    ("investment", 30, "Menjanjikan profit/return pasti.",
+     r"(profit|keuntungan|untung|return|cuan|bagi\s+hasil|roi).{0,30}(\d{1,3}\s?%|pasti|dijamin|harian|per\s+hari|perhari|mingguan|fantastis|jutaan)"),
+    ("investment", 30, "Modal kecil untung besar.",
+     r"modal\s+(kecil|minim|receh|\d+\s?(rb|ribu|k)).{0,40}(untung|profit|cuan|hasil)"),
+    ("investment", 14, "Topik trading/kripto (rawan penipuan).",
+     r"\b(trading|forex|kripto|crypto|bitcoin|btc|usdt|nft|binary\s+option|robot\s+trading|auto\s*trade)\b"),
+    ("investment", 32, "Menjamin profit/balik modal.",
+     r"(dijamin|guarantee|pasti|100\s?%).{0,15}(profit|untung|cuan|balik\s+modal|return)"),
+    ("investment", 22, "Mengajak masuk grup VIP/sinyal trading.",
+     r"(grup|group|channel|komunitas|member).{0,25}(vip|premium|sinyal|signal|trading|investasi|cuan)"),
+    ("investment", 25, "Pola skema piramida/MLM (rekrut lalu dapat bonus).",
+     r"(ajak|rekrut|referral|downline|upline|member\s+baru|undang).{0,30}(bonus|komisi|fee|reward|cashback)"),
+    ("investment", 32, "Penarikan dana diminta biaya tambahan (khas penipuan investasi).",
+     r"(withdraw|penarikan|wd|tarik\s+dana).{0,25}(gagal|pajak|biaya|verifikasi|tertahan|ditahan|denda)"),
+    ("investment", 25, "Pola airdrop/presale token.",
+     r"(airdrop|presale|pre-sale|token\s+baru|\bico\b)"),
+    ("investment", 20, "Platform investasi/trading 'baru & terpercaya'.",
+     r"(platform|aplikasi|situs)\s+(investasi|trading)\s+(baru|resmi|terpercaya|legal)"),
+
+    # ---- online gambling ------------------------------------------------
+    ("gambling", 38, "Konten judi online (slot/togel/casino).",
+     r"(slot\s*(gacor|online|maxwin|dana|pulsa|\d{2,})|gacor\s+(hari\s+ini|slot)|\btogel\b|\bsbobet\b|\bmaxwin\b|judi\s+(online|bola|slot)|situs\s+(slot|judi|togel)|rtp\s+slot|casino\s+online|kasino\s+online|taruhan|bandar\s+(togel|bola|judi)|poker\s+online|\bjackpot\b|scatter\s+hitam|link\s+alternatif)"),
+    ("gambling", 25, "Deposit via pulsa/e-wallet kecil (ciri situs judi).",
+     r"(deposit|depo)\s*(pulsa|dana|ovo|gopay|via\s+(dana|ovo|gopay|pulsa)|\d+\s?(rb|ribu|k)\b)"),
+    ("gambling", 30, "Bonus new member / free spin (promosi judi).",
+     r"(bonus\s+(new\s+member|member\s+baru|deposit\s+\d|\d+\s?%\s+(new|member))|freebet|free\s+spin|freespin|bocoran\s+(slot|rtp|angka|togel|jp))"),
+
+    # ---- loans ----------------------------------------------------------
+    ("loan", 35, "Pinjaman 'cepat/tanpa jaminan' (khas pinjol ilegal).",
+     r"(pinjaman|pinjol|kredit|dana\s+tunai|pinjam\s+uang|dana\s+cepat).{0,45}(cepat|instan|tanpa\s+(jaminan|bi\s+checking|slik|survey|agunan|ribet)|cair\s+(dalam|hari\s+ini|langsung)|proses\s+\d+\s+menit|bunga\s+0|limit\s+besar)"),
+    ("loan", 28, "Menjanjikan pinjaman tanpa BI Checking/jaminan.",
+     r"(tanpa|bebas)\s+(bi\s+checking|slik|jaminan|agunan|survey|verifikasi\s+ribet)"),
+    ("loan", 36, "Meminta biaya di muka sebelum pinjaman cair.",
+     r"(biaya|fee|deposit|jaminan|asuransi|admin|pajak).{0,25}(dulu|di\s+muka|terlebih\s+dahulu|sebelum\s+(cair|pencairan)|duluan)"),
+    ("loan", 25, "Ancaman penagihan/penyebaran kontak (ciri pinjol ilegal).",
+     r"(tagih|tunggakan|hutang|utang).{0,40}(sebar|kontak\s+(keluarga|teman)|permalukan|datangi|keluarga\s+anda)"),
+
+    # ---- job scams ------------------------------------------------------
+    ("job_scam", 12, "Penawaran kerja online/sampingan.",
+     r"(lowongan|rekrut|dibutuhkan|dicari|loker|kerja\s+(online|sampingan|dari\s+rumah|part\s*time|freelance)|work\s+from\s+home|\bwfh\b)"),
+    ("job_scam", 32, "Gaji/komisi besar per hari.",
+     r"(gaji|penghasilan|income|bayaran|komisi|fee|bonus).{0,25}(rp\s?[\d.,]+|\d+\s?(juta|jt|rb|ribu|k)\b).{0,25}(per\s+hari|perhari|harian|per\s+minggu|mingguan|per\s+jam|sehari|/\s?hari)"),
+    ("job_scam", 32, "Tugas like/subscribe/review dibayar (task scam).",
+     r"(like|subscribe|follow|tonton|review|rating|klik\s+iklan|ulasan|checkout|order\s+barang).{0,30}(dibayar|bayaran|komisi|bonus|rp\s?[\d.]+|uang|saldo|dapat\s+uang)"),
+    ("job_scam", 25, "Kerja tanpa pengalaman/modal tetapi penghasilan besar.",
+     r"(tanpa\s+(pengalaman|modal|interview|wawancara|skill|keahlian)).{0,40}(gaji|bonus|komisi|penghasilan|untung)"),
+    ("job_scam", 30, "Meminta biaya pendaftaran/pelatihan kerja.",
+     r"(biaya|bayar|setor|transfer).{0,25}(pelatihan|seragam|administrasi|registrasi|pendaftaran|training|alat\s+kerja|deposit\s+kerja)"),
+    ("job_scam", 12, "Rekruter mengarahkan lewat chat pribadi.",
+     r"(hubungi|chat|wa|whatsapp|telegram|dm).{0,25}(hrd|rekruter|admin|recruiter)"),
+
+    # ---- impersonating institutions ------------------------------------
+    ("impersonation", 10, "Mengatasnamakan lembaga/instansi resmi.",
+     r"\b(polisi|polri|kepolisian|kejaksaan|kejati|pengadilan|bareskrim|bea\s+cukai|imigrasi|interpol|bnn|kpk|ojk|bank\s+indonesia|kemenkeu|kementerian|dirjen|djp|pajak|bpjs|bpom|kominfo|komdigi|pln|pdam|telkomsel|indihome)\b"),
+    ("impersonation", 6, "Menyebut nama bank/dompet digital.",
+     r"\b(bca|bri|bni|mandiri|btn|cimb|danamon|permata|jenius|seabank|gopay|ovo|shopeepay|linkaja|bank)\b"),
+    ("impersonation", 25, "Ancaman hukum/denda mendadak.",
+     r"(surat|panggilan|tilang|somasi|denda|pelanggaran|perkara|laporan\s+polisi).{0,40}(anda|nama\s+anda|atas\s+nama|ditangkap|segera|hadir|bayar|klik)"),
+    ("impersonation", 36, "Menuduh Anda terlibat kasus (modus aparat palsu).",
+     r"(anda|nomor\s+anda|rekening\s+anda|identitas\s+anda|nama\s+anda).{0,40}(terlibat|dilaporkan|disalahgunakan|pencucian\s+uang|narkoba|kasus\s+hukum|ditangkap|dicurigai|tersangka)"),
+    ("impersonation", 20, "Mengaku petugas/CS instansi.",
+     r"(petugas|staf|staff|karyawan|perwakilan|agen|customer\s+service|\bcs\b|admin|penyidik)\s+(bank|ojk|polisi|bca|bri|bni|mandiri|pln|bpjs|dinas|kominfo|pajak|kurir|polri|kejaksaan)"),
+    ("impersonation", 25, "Modus e-tilang / pelanggaran lalu lintas.",
+     r"(e-?tilang|tilang\s+elektronik|pelanggaran\s+lalu\s+lintas)"),
+    ("impersonation", 22, "Modus pajak/DJP.",
+     r"(pajak|djp|spt).{0,30}(klik|download|unduh|tagihan|lapor|restitusi|verifikasi|\.apk)"),
+    ("impersonation", 20, "Meminta Anda menghubungi/menemui 'penyidik/petugas'.",
+     r"(hubungi|temui|datang\s+ke|konfirmasi\s+ke).{0,20}(penyidik|petugas|aparat|jaksa|polisi)"),
+]

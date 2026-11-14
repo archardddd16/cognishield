@@ -1,0 +1,151 @@
+package __PACKAGE__
+
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
+import android.os.Build
+import android.service.notification.NotificationListenerService
+import android.service.notification.StatusBarNotification
+import org.json.JSONObject
+import java.net.HttpURLConnection
+import java.net.URL
+import java.util.concurrent.Executors
+
+/**
+ * Notification Guard: reads incoming notifications, sends risky-looking ones to the
+ * CogniShield backend (/analyze/auto) and shows an alert when the result is not safe.
+ * Runs inside the system-bound service, so it works even when the app UI is closed.
+ */
+class CogniNotificationService : NotificationListenerService() {
+
+    private val executor = Executors.newSingleThreadExecutor()
+    private val seen = object : LinkedHashMap<String, Long>(64, 0.75f, true) {
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, Long>?): Boolean = size > 200
+    }
+
+    override fun onNotificationPosted(sbn: StatusBarNotification) {
+        try {
+            handle(sbn)
+        } catch (_: Throwable) {
+            // never crash the listener
+        }
+    }
+
+    private fun handle(sbn: StatusBarNotification) {
+        val prefs = getSharedPreferences(CogniConfig.PREFS, Context.MODE_PRIVATE)
+        if (!prefs.getBoolean(CogniConfig.KEY_ENABLED, false)) return
+        if (sbn.packageName == packageName) return
+        if (sbn.isOngoing) return
+        val n = sbn.notification ?: return
+        if ((n.flags and Notification.FLAG_GROUP_SUMMARY) != 0) return
+
+        val extras = n.extras ?: return
+        val title = extras.getCharSequence(Notification.EXTRA_TITLE)?.toString().orEmpty()
+        val text = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString().orEmpty()
+        val big = extras.getCharSequence(Notification.EXTRA_BIG_TEXT)?.toString().orEmpty()
+        val body = (if (big.length > text.length) big else text).trim()
+        if (body.length < 8) return
+
+        val full = (title + "\n" + body).trim().take(2000)
+        if (!looksRisky(full)) return // privacy: ordinary notifications never leave the phone
+
+        val key = sbn.packageName + "|" + full.hashCode()
+        synchronized(seen) {
+            if (seen.containsKey(key)) return
+            seen[key] = System.currentTimeMillis()
+        }
+
+        val baseUrl = prefs.getString(CogniConfig.KEY_URL, null) ?: return
+        val appLabel = try {
+            packageManager.getApplicationLabel(packageManager.getApplicationInfo(sbn.packageName, 0)).toString()
+        } catch (_: Exception) {
+            sbn.packageName
+        }
+        executor.execute { analyze(baseUrl, full, appLabel) }
+    }
+
+    private fun looksRisky(t: String): Boolean {
+        val hasUrl = URL_RE.containsMatchIn(t)
+        if (!hasUrl && !t.contains(Regex("\\s"))) return false // single token: likely a code or password
+        return hasUrl || WORD_RE.containsMatchIn(t)
+    }
+
+    private fun analyze(baseUrl: String, text: String, appLabel: String) {
+        var conn: HttpURLConnection? = null
+        try {
+            conn = (URL(baseUrl.trimEnd('/') + "/analyze/auto").openConnection() as HttpURLConnection).apply {
+                requestMethod = "POST"
+                connectTimeout = 6000
+                readTimeout = 10000
+                doOutput = true
+                setRequestProperty("Content-Type", "application/json; charset=utf-8")
+            }
+            val payload = JSONObject()
+                .put("text", text)
+                .put("source", "notification")
+                .put("app", appLabel)
+                .toString()
+            conn.outputStream.use { it.write(payload.toByteArray(Charsets.UTF_8)) }
+            if (conn.responseCode != 200) return
+            val json = JSONObject(conn.inputStream.bufferedReader().use { it.readText() })
+            val level = json.optString("level", "safe")
+            if (level == "safe") return
+            val title = json.optString("warning_title", "Suspicious message")
+            val label = json.optString("label", "")
+            val risk = json.optInt("risk_score", 0)
+            showAlert(title, "$appLabel: $label (risk $risk/100)")
+        } catch (_: Throwable) {
+            // backend unreachable: stay silent
+        } finally {
+            conn?.disconnect()
+        }
+    }
+
+    private fun showAlert(title: String, body: String) {
+        val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            nm.createNotificationChannel(
+                NotificationChannel(CHANNEL_ID, "Threat alerts", NotificationManager.IMPORTANCE_HIGH)
+            )
+        }
+        val builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Notification.Builder(this, CHANNEL_ID)
+        } else {
+            @Suppress("DEPRECATION")
+            Notification.Builder(this).setPriority(Notification.PRIORITY_HIGH)
+        }
+        val launch = packageManager.getLaunchIntentForPackage(packageName)
+        if (launch != null) {
+            builder.setContentIntent(
+                PendingIntent.getActivity(
+                    this, 0, launch, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
+            )
+        }
+        builder
+            .setSmallIcon(android.R.drawable.ic_dialog_alert)
+            .setContentTitle(title)
+            .setContentText(body)
+            .setStyle(Notification.BigTextStyle().bigText(body))
+            .setAutoCancel(true)
+        nm.notify((System.currentTimeMillis() % Int.MAX_VALUE).toInt(), builder.build())
+    }
+
+    companion object {
+        private const val CHANNEL_ID = "cogni_alerts"
+
+        private val URL_RE = Regex(
+            "(https?://|www\\.)|\\b[a-z0-9-]+\\.(com|co\\.id|go\\.id|id|net|org|xyz|top|click|link|info|site|online|cc|ly|gl|gd|vip|club|shop|store|app)\\b",
+            RegexOption.IGNORE_CASE
+        )
+        private val WORD_RE = Regex(
+            "otp|kode verifikasi|\\bpin\\b|password|kata sandi|diblokir|dibekukan|diretas|verifikasi|hadiah|undian|menang|" +
+                "transfer|rekening|pinjam|pinjol|investasi|profit|deposit|slot|togel|judi|\\.apk|install|polisi|kejaksaan|ojk|" +
+                "bpjs|pajak|bea cukai|kurir|paket|resi|lowongan|gaji|komisi|nomor baru|bitcoin|kripto|crypto|sebar|bayar|" +
+                "tagihan|denda|tilang|klaim|gratis|bonus|anydesk|virus|tebusan|ransom|congratulations|you have won|verify your",
+            RegexOption.IGNORE_CASE
+        )
+    }
+}
