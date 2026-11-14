@@ -30,6 +30,10 @@ jobs:
         shell: pwsh
         run: ./setup_android.ps1
 
+      - name: Disable Kotlin incremental cache (multi-drive fix)
+        shell: pwsh
+        run: Add-Content android/gradle.properties "`nkotlin.incremental=false"
+
       - run: flutter pub get
 
       - run: flutter build apk --release
