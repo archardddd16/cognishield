@@ -35,55 +35,94 @@ Aplikasi penjaga keamanan di HP yang membantu kita tidak gampang kena tipu lewat
 
 ## 📲 Coba aplikasinya (untuk Dewan Juri)
 
-Ada dua cara. Cara 1 paling cepat dan cukup pakai HP Android.
+### ⚡ Mulai cepat (3 langkah, tanpa mengatur apa pun)
 
-### Cara 1: Pasang APK di HP Android (±3 menit)
+| # | Lakukan ini | Hasilnya |
+|---|---|---|
+| **1** | Dari **HP Android**, buka 👉 [**Download CogniShield.apk**](https://github.com/archardddd16/cognishield/releases/latest) dan ketuk file `CogniShield.apk` | File terunduh |
+| **2** | Ketuk file APK, lalu **Pengaturan → Izinkan dari sumber ini → Instal**. Kalau muncul peringatan keamanan, pilih **Instal saja** | CogniShield terpasang |
+| **3** | Buka app → tab **Protection** → **Scan Anything** → tempel contoh di bawah → **Check now** | Hasil *Waspada: Phishing*, skor ±72/100 |
 
-**Langkah 1. Unduh aplikasi**
+Pesan contoh untuk ditempel (salin saja):
 
-👉 [**Download CogniShield.apk**](https://github.com/archardddd16/cognishield/releases/latest)
+```
+Akun Anda dibekukan, segera verifikasi di bit.ly/update-akun
+```
 
-Buka link di atas dari HP, lalu ketuk file `CogniShield.apk` di bagian **Assets**.
+Contoh link untuk mode **Link**:
 
-**Langkah 2. Pasang**
+```
+http://klikbca-verifikasi.xyz/login
+```
 
-Karena aplikasi ini belum ada di Play Store, Android akan menampilkan peringatan. Itu normal.
+> ✅ Alamat server sudah tertanam di aplikasi, jadi **tidak ada pengaturan** yang perlu diubah.
+> ⏳ Scan pertama bisa terasa lebih lambat beberapa detik karena server sedang "bangun". Scan berikutnya cepat.
 
-1. Ketuk file APK yang sudah terunduh.
-2. Kalau muncul *"Demi keamanan, ponsel tidak diizinkan memasang aplikasi dari sumber ini"*, ketuk **Pengaturan**, lalu aktifkan **Izinkan dari sumber ini**.
-3. Kalau muncul peringatan **Play Protect** atau *"tidak dapat memverifikasi developer"*, pilih **Instal saja** (*Install anyway*) atau **Instal tanpa memindai**.
+### Kalau instalasi bermasalah
 
 <details>
-<summary><b>HP Samsung: kalau gagal dengan pesan "aplikasi tidak terinstal"</b></summary>
+<summary><b>Muncul peringatan "tidak dapat memverifikasi developer" atau Play Protect</b></summary>
 
-Matikan dulu **Auto Blocker**: *Pengaturan → Keamanan dan privasi → Auto Blocker → matikan*. Setelah CogniShield terpasang, boleh dinyalakan lagi.
+Itu normal karena aplikasi belum ada di Play Store. Pilih **Instal saja** (*Install anyway*) atau **Instal tanpa memindai**.
+
+Kalau tombolnya tidak ada: *Play Store → ikon profil → Play Protect → ikon gerigi → matikan "Pindai aplikasi dengan Play Protect"*, pasang aplikasinya, lalu nyalakan lagi.
 
 </details>
 
 <details>
-<summary><b>Kalau Play Protect terus memblokir</b></summary>
+<summary><b>HP Samsung: gagal dengan pesan "aplikasi tidak terinstal"</b></summary>
 
-Buka *Play Store → ikon profil → Play Protect → ikon gerigi → matikan "Pindai aplikasi dengan Play Protect"*. Pasang aplikasinya, lalu nyalakan lagi.
+Matikan **Auto Blocker** dulu: *Pengaturan → Keamanan dan privasi → Auto Blocker → matikan*. Setelah CogniShield terpasang, boleh dinyalakan lagi.
 
 </details>
 
-**Langkah 3. Buka dan coba**
+<details>
+<summary><b>File yang terunduh berakhiran .zip atau tidak bisa dibuka</b></summary>
 
-1. Buka **CogniShield**. Di halaman **Home**, ketuk **Open Protection** atau tab **Protection**.
-2. Pilih **Scan Anything**, lalu tempel pesan contoh ini:
+Pastikan yang diunduh adalah file **`CogniShield.apk`** dari halaman *Releases* (bagian **Assets**), bukan "Source code (zip)". Kalau tetap tidak bisa, unduh di laptop lalu kirim ke HP lewat kabel USB atau Google Drive.
 
-   ```
-   Akun Anda dibekukan, segera verifikasi di bit.ly/update-akun
-   ```
-3. Ketuk **Check now**. Hasilnya harus **Waspada: Phishing / Pencurian Akun** dengan skor sekitar **72/100**, lengkap dengan alasan dan saran.
-4. Coba juga mode **Link** dengan `http://klikbca-verifikasi.xyz/login`. Hasilnya skor sekitar **95/100** (domain meniru bank). Link ini **tidak pernah dibuka** oleh aplikasi.
+</details>
 
-> ⏳ **Penting:** server analisis ada di internet (paket gratis). Kalau aplikasi terasa lambat saat pertama kali scan, tunggu sampai 1 menit. Server sedang "bangun" dan scan berikutnya akan cepat.
-> Server: `https://ISI-ALAMAT-SERVER-DI-SINI` (cek status di `/health`)
+<details>
+<summary><b>App menampilkan "Cannot reach the backend"</b></summary>
 
-### Cara 2: Tanpa memasang apa pun
+1. Pastikan HP terhubung internet.
+2. Buka `https://archardd16.pythonanywhere.com/health` di browser HP. Harus muncul teks status.
+3. Kalau sudah muncul, tutup app lalu buka lagi dan ulangi scan.
 
-Kalau tidak mau memasang APK, lihat **video tutorial** (isi tautan YouTube di sini) dan **dokumentasi API interaktif** di `https://ISI-ALAMAT-SERVER-DI-SINI/docs`. Di halaman itu juri bisa mencoba mesin analisisnya langsung dari browser.
+</details>
+
+### Mengaktifkan perlindungan otomatis (opsional)
+
+Tab **Protection** → nyalakan **Notification Guard** → ketuk **Grant notification access** → aktifkan **CogniShield** di pengaturan Android → kembali ke aplikasi. Setelah itu, notifikasi yang terlihat berisiko akan memunculkan peringatan sendiri.
+
+### Tanpa memasang apa pun
+
+- 🎬 **Video tutorial:** [tonton di YouTube](ISI-LINK-YOUTUBE-DI-SINI) (cara pakai dalam 2 menit).
+- 🌐 **Cek server:** [`/health`](https://archardd16.pythonanywhere.com/health) menunjukkan server aktif.
+
+<details>
+<summary><b>Tes mesin analisis lewat terminal (untuk juri yang suka teknis)</b></summary>
+
+**Windows PowerShell:**
+
+```powershell
+Invoke-RestMethod -Method Post -Uri "https://archardd16.pythonanywhere.com/analyze/auto" `
+  -ContentType "application/json" `
+  -Body '{"text":"Akun Anda dibekukan, segera verifikasi di bit.ly/update-akun","source":"manual"}'
+```
+
+**macOS / Linux / Git Bash:**
+
+```bash
+curl -X POST https://archardd16.pythonanywhere.com/analyze/auto \
+  -H "Content-Type: application/json" \
+  -d '{"text":"Akun Anda dibekukan, segera verifikasi di bit.ly/update-akun","source":"manual"}'
+```
+
+Hasilnya berupa JSON berisi kategori ancaman, skor risiko, alasan, dan saran.
+
+</details>
 
 ---
 
