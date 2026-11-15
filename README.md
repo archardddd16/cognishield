@@ -1,0 +1,221 @@
+<div align="center">
+
+<img src="docs/logo.png" alt="Logo CogniShield" width="140">
+
+# CogniShield
+
+**Your Safe, Worry-Free Life**
+
+Aplikasi penjaga keamanan di HP yang membantu kita tidak gampang kena tipu lewat link, pesan, dan notifikasi.
+
+![Flutter](https://img.shields.io/badge/Flutter-App-02569B?logo=flutter&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-Backend-009688?logo=fastapi&logoColor=white)
+![Android](https://img.shields.io/badge/Android-APK-3DDC84?logo=android&logoColor=white)
+![Ancaman](https://img.shields.io/badge/18_jenis_ancaman-107_aturan-2F5BEA)
+
+<img src="docs/banner.jpg" alt="CogniShield" width="720">
+
+**Karya untuk Kartika Cyber Hackathon · Archard Garcia · Teknik Komputer, BINUS University**
+
+</div>
+
+---
+
+## Daftar isi
+1. [Coba aplikasinya (untuk Dewan Juri)](#-coba-aplikasinya-untuk-dewan-juri)
+2. [Apa itu CogniShield?](#-apa-itu-cognishield)
+3. [Tampilan aplikasi](#-tampilan-aplikasi)
+4. [Fitur dan fungsinya](#-fitur-dan-fungsinya)
+5. [Ancaman yang dikenali](#-ancaman-yang-dikenali)
+6. [Cara kerja](#-cara-kerja)
+7. [Menjalankan sendiri (opsional)](#-menjalankan-sendiri-opsional)
+8. [Batasan yang jujur](#-batasan-yang-jujur)
+
+---
+
+## 📲 Coba aplikasinya (untuk Dewan Juri)
+
+Ada dua cara. Cara 1 paling cepat dan cukup pakai HP Android.
+
+### Cara 1: Pasang APK di HP Android (±3 menit)
+
+**Langkah 1. Unduh aplikasi**
+
+👉 [**Download CogniShield.apk**](https://github.com/archardddd16/cognishield/releases/latest)
+
+Buka link di atas dari HP, lalu ketuk file `CogniShield.apk` di bagian **Assets**.
+
+**Langkah 2. Pasang**
+
+Karena aplikasi ini belum ada di Play Store, Android akan menampilkan peringatan. Itu normal.
+
+1. Ketuk file APK yang sudah terunduh.
+2. Kalau muncul *"Demi keamanan, ponsel tidak diizinkan memasang aplikasi dari sumber ini"*, ketuk **Pengaturan**, lalu aktifkan **Izinkan dari sumber ini**.
+3. Kalau muncul peringatan **Play Protect** atau *"tidak dapat memverifikasi developer"*, pilih **Instal saja** (*Install anyway*) atau **Instal tanpa memindai**.
+
+<details>
+<summary><b>HP Samsung: kalau gagal dengan pesan "aplikasi tidak terinstal"</b></summary>
+
+Matikan dulu **Auto Blocker**: *Pengaturan → Keamanan dan privasi → Auto Blocker → matikan*. Setelah CogniShield terpasang, boleh dinyalakan lagi.
+
+</details>
+
+<details>
+<summary><b>Kalau Play Protect terus memblokir</b></summary>
+
+Buka *Play Store → ikon profil → Play Protect → ikon gerigi → matikan "Pindai aplikasi dengan Play Protect"*. Pasang aplikasinya, lalu nyalakan lagi.
+
+</details>
+
+**Langkah 3. Buka dan coba**
+
+1. Buka **CogniShield**. Di halaman **Home**, ketuk **Open Protection** atau tab **Protection**.
+2. Pilih **Scan Anything**, lalu tempel pesan contoh ini:
+
+   ```
+   Akun Anda dibekukan, segera verifikasi di bit.ly/update-akun
+   ```
+3. Ketuk **Check now**. Hasilnya harus **Waspada: Phishing / Pencurian Akun** dengan skor sekitar **72/100**, lengkap dengan alasan dan saran.
+4. Coba juga mode **Link** dengan `http://klikbca-verifikasi.xyz/login`. Hasilnya skor sekitar **95/100** (domain meniru bank). Link ini **tidak pernah dibuka** oleh aplikasi.
+
+> ⏳ **Penting:** server analisis ada di internet (paket gratis). Kalau aplikasi terasa lambat saat pertama kali scan, tunggu sampai 1 menit. Server sedang "bangun" dan scan berikutnya akan cepat.
+> Server: `https://ISI-ALAMAT-SERVER-DI-SINI` (cek status di `/health`)
+
+### Cara 2: Tanpa memasang apa pun
+
+Kalau tidak mau memasang APK, lihat **video tutorial** (isi tautan YouTube di sini) dan **dokumentasi API interaktif** di `https://ISI-ALAMAT-SERVER-DI-SINI/docs`. Di halaman itu juri bisa mencoba mesin analisisnya langsung dari browser.
+
+---
+
+## 🛡️ Apa itu CogniShield?
+
+Penipuan digital biasanya datang sebagai link palsu, pesan yang bikin kita buru-buru, atau file APK berbahaya. Kita sulit memeriksa semuanya satu-satu, dan tidak ada yang menjaga pada saat pesan itu masuk.
+
+CogniShield memeriksa teks dan link yang kita terima, lalu memberi:
+
+- **Skor risiko** 0 sampai 100,
+- **Jenis ancamannya**,
+- **Alasan** kenapa dianggap berbahaya,
+- **Saran** apa yang sebaiknya dilakukan.
+
+Ancaman ini juga relevan bagi personel dan keluarga satuan: pesan yang mengatasnamakan instansi, pembajakan akun, link dan APK berbahaya, serta hoaks.
+
+---
+
+## 📱 Tampilan aplikasi
+
+> Gambar di bawah adalah rekonstruksi tampilan layar aplikasi.
+
+<table>
+  <tr>
+    <td align="center"><img src="docs/screens/home_alert.png" width="230"><br><b>Home</b><br><sub>Status, Security Score, ancaman terbaru</sub></td>
+    <td align="center"><img src="docs/screens/scan_msg2.png" width="230"><br><b>Scan pesan</b><br><sub>Hasil, alasan, dan saran</sub></td>
+    <td align="center"><img src="docs/screens/scan_link.png" width="230"><br><b>Cek link</b><br><sub>Domain tiruan bank, skor 95</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/screens/protection.png" width="230"><br><b>Protection</b><br><sub>Perlindungan otomatis</sub></td>
+    <td align="center"><img src="docs/screens/feed.png" width="230"><br><b>Threat Feed</b><br><sub>Riwayat ancaman</sub></td>
+    <td align="center"><img src="docs/screens/graph.png" width="230"><br><b>Risk Graph</b><br><sub>Ringkasan semua scan</sub></td>
+  </tr>
+</table>
+
+---
+
+## ✨ Fitur dan fungsinya
+
+| Fitur | Untuk apa |
+|---|---|
+| 🏠 **Home / Security Score** | Menunjukkan status perlindungan dan skor keamanan 0 sampai 100 dari scan terakhir, plus daftar ancaman terbaru. |
+| 🔍 **Scan Anything** | Tempel apa saja (pesan, link, berita). Aplikasi menentukan sendiri jenis ancamannya. |
+| 🔗 **Link Shield** | Mengecek link dari pola domainnya (pemendek URL, domain tiruan bank, akhiran berisiko, unduhan APK) **tanpa membuka link**. |
+| 💬 **Message Guard** | Mengenali pesan penipuan: minta OTP, hadiah palsu, ancaman akun diblokir, dan sejenisnya. |
+| 📰 **Hoax Check** | Menganalisis berita atau klaim viral yang terindikasi hoaks atau propaganda. |
+| 📋 **Clipboard Guard** | Mengecek teks yang baru kita salin saat aplikasi dibuka lagi. Hanya teks yang berisiko yang dikirim ke server. |
+| 🔔 **Notification Guard** *(Android)* | Membaca notifikasi masuk (misalnya WhatsApp) dan langsung memberi peringatan kalau terlihat berbahaya. |
+| 📊 **Threat Feed** | Menyimpan semua ancaman, bisa disaring: Blocked, Detected, Resolved. |
+| 🌐 **Risk Graph** | Grafik semua hasil scan: biru aman, kuning mencurigakan, merah berbahaya. |
+
+**Mengaktifkan Notification Guard:** tab *Protection* → nyalakan **Notification Guard** → ketuk **Grant notification access** → aktifkan **CogniShield** di pengaturan Android → kembali ke aplikasi. Fitur ini khusus Android, karena iOS tidak mengizinkan aplikasi membaca notifikasi aplikasi lain.
+
+---
+
+## 🎯 Ancaman yang dikenali
+
+18 jenis: Phishing · Pencurian OTP dan data pribadi · Pembajakan akun (WhatsApp "kode salah kirim", QR) · Malware/APK · Hadiah dan bansos palsu · Investasi/kripto palsu · Judi online · Pinjol ilegal · Lowongan kerja palsu · Pencatutan polisi/bank/instansi · Paket/kurir palsu · "Ini nomor baru saya" · Pemerasan/ransomware · CS dan layanan palsu · Penipuan jual-beli · Asmara/warisan · Hoaks/propaganda · Tautan berbahaya.
+
+---
+
+## ⚙️ Cara kerja
+
+```
+ App Flutter ──┐
+ Clipboard Guard ──┼──►  Backend FastAPI  ──►  Mesin aturan (107 aturan, 18 kategori)
+ Notification Guard ┘     /analyze/auto          + analisis URL + skor risiko + saran
+```
+
+1. **Normalisasi** teks (Unicode NFKC) supaya huruf hias tidak mengelabui.
+2. **Pencocokan aturan** (107 aturan dalam 18 kategori).
+3. **Penguat tekanan**: kata yang bikin buru-buru atau mengancam menaikkan skor.
+4. **Analisis URL** dari pola domain.
+5. **Skor akhir**: Aman (< 30), Waspada (≥ 30), Bahaya (≥ 60), disertai alasan dan saran.
+
+Pendekatan berbasis aturan dipilih karena cepat (sekitar 0,4 ms per analisis di mesin pengembangan, di luar jaringan), setiap hasilnya bisa dijelaskan, dan tidak butuh data latih atau GPU. Tempat pemasangan model IndoBERT sudah disiapkan untuk pengembangan berikutnya.
+
+**Privasi:** link tidak pernah dibuka, teks hanya dikirim ke server milik pengembang, dan hasil aman dari clipboard/notifikasi tidak dicatat.
+
+---
+
+## 🧰 Menjalankan sendiri (opsional)
+
+```
+cognishield/
+├── backend/   FastAPI + mesin analisis
+└── app/       Aplikasi Flutter
+```
+
+**Backend** (PowerShell):
+
+```powershell
+cd cognishield/backend
+python -m venv .venv
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+python test_analyzer.py          # 8 tes otomatis
+python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+Dokumentasi API: <http://127.0.0.1:8000/docs>
+
+**Aplikasi:**
+
+```powershell
+cd cognishield/app
+flutter create . --project-name cognishield --platforms=web,android   # sekali saja
+flutter pub get
+flutter run -d chrome
+```
+
+Untuk Android (Notification Guard): jalankan `.\setup_android.ps1` sekali, lalu `flutter run`. Alamat server bisa diubah di **Settings → Backend Server**.
+
+**Endpoint utama:** `POST /analyze/auto` · `/analyze/url` · `/analyze/notification` · `/analyze/propaganda` · `GET /stats` · `/history` · `/categories` · `DELETE /history`.
+
+---
+
+## ⚠️ Batasan yang jujur
+
+- Mesin berbasis **aturan dan pola**, belum model machine learning. Penipuan baru dengan gaya bahasa lain bisa lolos, dan pesan sah yang mirip penipuan bisa ditandai. Hasilnya **skor risiko, bukan kepastian**.
+- Link **tidak dibuka** dan belum dicek ke database reputasi (mis. Google Safe Browsing).
+- Notification Guard hanya di **Android** dan butuh izin *Notification Access*.
+- Riwayat disimpan di memori server dan hilang saat server restart.
+
+**Rencana berikutnya:** model IndoBERT untuk hoaks, integrasi Google Safe Browsing, riwayat permanen, dan fitur berbagi untuk iOS.
+
+---
+
+<div align="center">
+
+Dibuat oleh **Archard Garcia** · Teknik Komputer, BINUS University<br>
+*CogniShield. Your Safe, Worry-Free Life.*
+
+</div>
