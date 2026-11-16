@@ -4,6 +4,10 @@ on:
   workflow_dispatch:
   push:
     branches: [main, master]
+    tags: ['v*']
+
+permissions:
+  contents: write
 
 jobs:
   apk:
@@ -42,3 +46,9 @@ jobs:
         with:
           name: cognishield-apk
           path: cognishield/app/build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Attach APK to the GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: cognishield/app/build/app/outputs/flutter-apk/app-release.apk
