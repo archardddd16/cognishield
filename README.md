@@ -28,44 +28,86 @@ Aplikasi penjaga keamanan di HP yang membantu kita tidak gampang kena tipu lewat
 4. [Fitur dan fungsinya](#-fitur-dan-fungsinya)
 5. [Ancaman yang dikenali](#-ancaman-yang-dikenali)
 6. [Cara kerja](#-cara-kerja)
-7. [Menjalankan sendiri (opsional)](#-menjalankan-sendiri-opsional)
+7. [Struktur proyek dan API](#-struktur-proyek-dan-api)
 8. [Batasan yang jujur](#-batasan-yang-jujur)
 
 ---
 
 ## 📲 Coba aplikasinya (untuk Dewan Juri)
 
-### ⚡ Mulai cepat (3 langkah, tanpa mengatur apa pun)
+CogniShield terdiri dari **aplikasi Android** dan **server analisis** (Python). Servernya dijalankan di laptop sendiri, jadi teks yang dianalisis **tidak keluar ke layanan pihak ketiga**. Ada tiga langkah, sekitar 10 menit.
 
-| # | Lakukan ini | Hasilnya |
-|---|---|---|
-| **1** | Dari **HP Android**, buka 👉 [**Download CogniShield.apk**](https://github.com/archardddd16/cognishield/releases/latest) dan ketuk file `CogniShield.apk` | File terunduh |
-| **2** | Ketuk file APK, lalu **Pengaturan → Izinkan dari sumber ini → Instal**. Kalau muncul peringatan keamanan, pilih **Instal saja** | CogniShield terpasang |
-| **3** | Buka app → tab **Protection** → **Scan Anything** → tempel contoh di bawah → **Check now** | Hasil *Waspada: Phishing*, skor ±72/100 |
+**Yang dibutuhkan:** laptop dengan **Python 3.10 atau lebih baru** ([unduh di python.org](https://www.python.org/downloads/), centang *Add Python to PATH*), HP Android, dan **Wi-Fi yang sama** untuk keduanya.
 
-Pesan contoh untuk ditempel (salin saja):
+### Langkah 1. Jalankan server di laptop
+
+1. Di halaman GitHub ini, klik tombol hijau **Code → Download ZIP**, lalu ekstrak.
+2. Buka **PowerShell** di dalam folder hasil ekstrak, lalu jalankan:
+
+```powershell
+cd cognishield\backend
+python -m venv .venv
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+python -m uvicorn main:app --host 0.0.0.0 --port 8000
+```
+
+3. Kalau Windows Firewall bertanya, pilih **Allow access** (jaringan privat).
+4. Cek alamat laptop: buka PowerShell baru, ketik `ipconfig`, dan catat **IPv4 Address** Wi-Fi (misalnya `192.168.1.10`).
+5. Tes dari browser HP: buka `http://192.168.1.10:8000/health` (ganti dengan IP laptop). Kalau muncul teks status, server siap.
+
+<details>
+<summary><b>macOS / Linux</b></summary>
+
+```bash
+cd cognishield/backend
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+python -m uvicorn main:app --host 0.0.0.0 --port 8000
+```
+
+Cek IP dengan `ipconfig getifaddr en0` (macOS) atau `hostname -I` (Linux).
+
+</details>
+
+### Langkah 2. Pasang aplikasi di HP
+
+👉 [**Download CogniShield.apk**](https://github.com/archardddd16/cognishield/releases/latest) (buka dari HP, ketuk `CogniShield.apk` di bagian **Assets**)
+
+1. Ketuk file APK. Kalau diminta, aktifkan **Izinkan dari sumber ini**.
+2. Kalau muncul peringatan keamanan atau *"tidak dapat memverifikasi developer"*, pilih **Instal saja** (*Install anyway*). Itu normal karena aplikasi belum ada di Play Store.
+
+### Langkah 3. Sambungkan ke server dan coba
+
+1. Buka CogniShield → **Settings → Backend Server**, isi `http://IP-LAPTOP:8000` (contoh `http://192.168.1.10:8000`), lalu simpan.
+2. Tab **Protection → Scan Anything**, tempel pesan contoh ini, lalu ketuk **Check now**:
 
 ```
 Akun Anda dibekukan, segera verifikasi di bit.ly/update-akun
 ```
 
-Contoh link untuk mode **Link**:
+3. Hasilnya harus **Waspada: Phishing / Pencurian Akun** dengan skor sekitar **72/100**, lengkap dengan alasan dan saran.
+4. Coba juga mode **Link** dengan `http://klikbca-verifikasi.xyz/login` (skor sekitar **95/100**). Link ini **tidak pernah dibuka** oleh aplikasi.
 
-```
-http://klikbca-verifikasi.xyz/login
-```
-
-> ✅ Alamat server sudah tertanam di aplikasi, jadi **tidak ada pengaturan** yang perlu diubah.
-> ⏳ Scan pertama bisa terasa lebih lambat beberapa detik karena server sedang "bangun". Scan berikutnya cepat.
-
-### Kalau instalasi bermasalah
+### Kalau ada kendala
 
 <details>
-<summary><b>Muncul peringatan "tidak dapat memverifikasi developer" atau Play Protect</b></summary>
+<summary><b>App menampilkan "Cannot reach the backend"</b></summary>
 
-Itu normal karena aplikasi belum ada di Play Store. Pilih **Instal saja** (*Install anyway*) atau **Instal tanpa memindai**.
+- Server di laptop harus masih berjalan (jendela PowerShell jangan ditutup).
+- HP dan laptop harus di **Wi-Fi yang sama** (bukan data seluler). Matikan "Isolasi AP" atau jaringan tamu di router kalau ada.
+- Alamat harus memakai **IP laptop** dan diawali `http://`, bukan `127.0.0.1`.
+- Izinkan port 8000 di Windows Firewall. PowerShell sebagai Administrator:
+  `New-NetFirewallRule -DisplayName "CogniShield" -Direction Inbound -Protocol TCP -LocalPort 8000 -Action Allow`
+- Tes dulu `http://IP-LAPTOP:8000/health` di browser HP.
 
-Kalau tombolnya tidak ada: *Play Store → ikon profil → Play Protect → ikon gerigi → matikan "Pindai aplikasi dengan Play Protect"*, pasang aplikasinya, lalu nyalakan lagi.
+</details>
+
+<details>
+<summary><b>Peringatan Play Protect memblokir instalasi</b></summary>
+
+Pilih **Instal tanpa memindai**. Kalau tombolnya tidak ada: *Play Store → ikon profil → Play Protect → ikon gerigi → matikan "Pindai aplikasi dengan Play Protect"*, pasang aplikasinya, lalu nyalakan lagi.
 
 </details>
 
@@ -79,48 +121,29 @@ Matikan **Auto Blocker** dulu: *Pengaturan → Keamanan dan privasi → Auto Blo
 <details>
 <summary><b>File yang terunduh berakhiran .zip atau tidak bisa dibuka</b></summary>
 
-Pastikan yang diunduh adalah file **`CogniShield.apk`** dari halaman *Releases* (bagian **Assets**), bukan "Source code (zip)". Kalau tetap tidak bisa, unduh di laptop lalu kirim ke HP lewat kabel USB atau Google Drive.
-
-</details>
-
-<details>
-<summary><b>App menampilkan "Cannot reach the backend"</b></summary>
-
-1. Pastikan HP terhubung internet.
-2. Buka `https://archardd16.pythonanywhere.com/health` di browser HP. Harus muncul teks status.
-3. Kalau sudah muncul, tutup app lalu buka lagi dan ulangi scan.
+Pastikan yang diunduh adalah **`CogniShield.apk`** dari halaman *Releases* (bagian **Assets**), bukan "Source code (zip)".
 
 </details>
 
 ### Mengaktifkan perlindungan otomatis (opsional)
 
-Tab **Protection** → nyalakan **Notification Guard** → ketuk **Grant notification access** → aktifkan **CogniShield** di pengaturan Android → kembali ke aplikasi. Setelah itu, notifikasi yang terlihat berisiko akan memunculkan peringatan sendiri.
+Tab **Protection** → nyalakan **Notification Guard** → ketuk **Grant notification access** → aktifkan **CogniShield** di pengaturan Android → kembali ke aplikasi. Setelah itu, notifikasi yang terlihat berisiko memunculkan peringatan sendiri.
 
 ### Tanpa memasang apa pun
 
 - 🎬 **Video tutorial:** [tonton di YouTube](ISI-LINK-YOUTUBE-DI-SINI) (cara pakai dalam 2 menit).
-- 🌐 **Cek server:** [`/health`](https://archardd16.pythonanywhere.com/health) menunjukkan server aktif.
+- 🧪 **Tes mesin di laptop saja** (setelah Langkah 1): jalankan `python test_analyzer.py` di folder `backend` untuk 13 tes otomatis, atau buka `http://127.0.0.1:8000/docs` di browser laptop untuk mencoba API langsung.
 
 <details>
-<summary><b>Tes mesin analisis lewat terminal (untuk juri yang suka teknis)</b></summary>
-
-**Windows PowerShell:**
+<summary><b>Tes mesin analisis lewat terminal</b></summary>
 
 ```powershell
-Invoke-RestMethod -Method Post -Uri "https://archardd16.pythonanywhere.com/analyze/auto" `
+Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:8000/analyze/auto" `
   -ContentType "application/json" `
   -Body '{"text":"Akun Anda dibekukan, segera verifikasi di bit.ly/update-akun","source":"manual"}'
 ```
 
-**macOS / Linux / Git Bash:**
-
-```bash
-curl -X POST https://archardd16.pythonanywhere.com/analyze/auto \
-  -H "Content-Type: application/json" \
-  -d '{"text":"Akun Anda dibekukan, segera verifikasi di bit.ly/update-akun","source":"manual"}'
-```
-
-Hasilnya berupa JSON berisi kategori ancaman, skor risiko, alasan, dan saran.
+Hasilnya JSON berisi kategori ancaman, skor risiko, alasan, dan saran.
 
 </details>
 
@@ -165,6 +188,7 @@ Ancaman ini juga relevan bagi personel dan keluarga satuan: pesan yang mengatasn
 | Fitur | Untuk apa |
 |---|---|
 | 🏠 **Home / Security Score** | Menunjukkan status perlindungan dan skor keamanan 0 sampai 100 dari scan terakhir, plus daftar ancaman terbaru. |
+| 🧠 **Panel Lapisan Pertahanan** | Di setiap hasil scan: lapisan mana yang menemukan sinyal, taktik manipulasi yang terdeteksi, dan tingkat keyakinan. |
 | 🔍 **Scan Anything** | Tempel apa saja (pesan, link, berita). Aplikasi menentukan sendiri jenis ancamannya. |
 | 🔗 **Link Shield** | Mengecek link dari pola domainnya (pemendek URL, domain tiruan bank, akhiran berisiko, unduhan APK) **tanpa membuka link**. |
 | 💬 **Message Guard** | Mengenali pesan penipuan: minta OTP, hadiah palsu, ancaman akun diblokir, dan sejenisnya. |
@@ -187,24 +211,45 @@ Ancaman ini juga relevan bagi personel dan keluarga satuan: pesan yang mengatasn
 ## ⚙️ Cara kerja
 
 ```
- App Flutter ──┐
- Clipboard Guard ──┼──►  Backend FastAPI  ──►  Mesin aturan (107 aturan, 18 kategori)
- Notification Guard ┘     /analyze/auto          + analisis URL + skor risiko + saran
+ App Flutter ───────┐
+ Clipboard Guard ───┼──►  Backend FastAPI  ──►  7 lapisan pertahanan  ──►  skor + alasan + saran + keyakinan
+ Notification Guard ┘     /analyze/auto
 ```
 
-1. **Normalisasi** teks (Unicode NFKC) supaya huruf hias tidak mengelabui.
-2. **Pencocokan aturan** (107 aturan dalam 18 kategori).
-3. **Penguat tekanan**: kata yang bikin buru-buru atau mengancam menaikkan skor.
-4. **Analisis URL** dari pola domain.
-5. **Skor akhir**: Aman (< 30), Waspada (≥ 30), Bahaya (≥ 60), disertai alasan dan saran.
+CogniShield memakai **pertahanan berlapis (defense in depth)**. Setiap lapisan memeriksa hal yang berbeda dan melapor sendiri-sendiri:
 
-Pendekatan berbasis aturan dipilih karena cepat (sekitar 0,4 ms per analisis di mesin pengembangan, di luar jaringan), setiap hasilnya bisa dijelaskan, dan tidak butuh data latih atau GPU. Tempat pemasangan model IndoBERT sudah disiapkan untuk pengembangan berikutnya.
+| # | Lapisan | Memeriksa apa |
+|---|---|---|
+| 1 | **Normalisasi** | Huruf hias (Unicode NFKC) dan karakter tak terlihat yang dipakai untuk mengelabui filter. |
+| 2 | **Pola ancaman** | 107 aturan dalam 18 kategori, plus penguat tekanan (urgensi, ancaman). |
+| 3 | **Domain kognitif** | **Taktik manipulasi** yang dipakai penipu: tekanan waktu, mengaku otoritas, rasa takut, iming-iming hadiah, kelangkaan, kerahasiaan, bukti sosial palsu, dan kedekatan palsu. Berdasarkan prinsip persuasi dari psikologi sosial. |
+| 4 | **Analisis tautan** | Pemendek URL, alamat IP, punycode, akhiran berisiko, hosting gratis, unduhan `.apk`, domain tiruan merek. Tautan tidak dibuka. |
+| 5 | **Klaim vs tautan** | Pesan menyebut sebuah lembaga (mis. BCA, JNE, Shopee), tetapi tautannya bukan milik lembaga itu. |
+| 6 | **Reputasi eksternal (VirusTotal, opsional)** | Memastikan tautan **benar-benar** ditandai berbahaya oleh mesin keamanan lain, bukan hanya dari gaya bahasa. Aktif bila server punya API key VirusTotal; tanpa key, lapisan ini tampil "belum diaktifkan". |
+| 7 | **Model bahasa (opsional)** | Tempat pemasangan model seperti IndoBERT sudah disiapkan. **Saat ini belum dilatih dan belum aktif**, dan aplikasi menampilkannya sebagai "belum diaktifkan". |
 
-**Privasi:** link tidak pernah dibuka, teks hanya dikirim ke server milik pengembang, dan hasil aman dari clipboard/notifikasi tidak dicatat.
+**Skor akhir:** Aman (< 30), Waspada (≥ 30), Bahaya (≥ 60), disertai alasan dan saran.
+
+**Tingkat keyakinan** dihitung dari berapa lapisan aktif yang sepakat: tiga atau lebih = tinggi, dua = sedang, satu = rendah. Ini ukuran heuristik berdasarkan kesepakatan antar-lapisan, **bukan probabilitas statistik** dan belum dikalibrasi dengan data berlabel.
+
+Di aplikasi, tiap hasil scan menampilkan panel **Lapisan pertahanan** (lapisan mana yang berbunyi) dan **Taktik manipulasi** yang terdeteksi beserta potongan teks buktinya.
+
+Pendekatan berbasis aturan dipilih karena cepat (sekitar 0,4 ms per analisis di mesin pengembangan, di luar jaringan), setiap hasilnya bisa dijelaskan, dan tidak butuh data latih atau GPU.
+
+**Cek tautan dengan VirusTotal (opsional).** Hasil VirusTotal menetapkan *skor minimum*: 5 mesin atau lebih menandai berbahaya = Bahaya (90), 2-4 mesin = Bahaya (65), 1 mesin atau 2 "mencurigakan" = Waspada (35). Hasil bersih **tidak pernah menurunkan** skor lokal. Cara mengaktifkan, sebelum menjalankan server:
+
+```powershell
+$env:VT_API_KEY = "isi-api-key-virustotal-kamu"
+python -m uvicorn main:app --host 0.0.0.0 --port 8000
+```
+
+API key gratis dari akun [virustotal.com](https://www.virustotal.com) (menu profil → API key). Jangan pernah menaruh key di kode atau di GitHub. Cek aktif atau tidaknya di `/health` (`"virustotal": true`). Akun gratis dibatasi 4 permintaan/menit dan 500/hari untuk pemakaian non-komersial. Tautan yang baru pertama kali dilihat VirusTotal butuh beberapa detik, jadi hasilnya bisa "masih dianalisis" dan muncul saat dipindai ulang. Jika VirusTotal tidak terjangkau atau kuota habis, CogniShield tetap jalan dengan mesin lokal.
+
+**Privasi:** tautan tidak pernah dibuka oleh aplikasi. Teks hanya dikirim ke server yang dijalankan sendiri. Jika VirusTotal diaktifkan, **hanya alamat tautan** (bukan isi pesan) dikirim ke VirusTotal, dan VirusTotal dapat menyimpan atau membagikan alamat itu. Hasil aman dari clipboard/notifikasi tidak dicatat.
 
 ---
 
-## 🧰 Menjalankan sendiri (opsional)
+## 🧰 Struktur proyek dan API
 
 ```
 cognishield/
@@ -212,39 +257,16 @@ cognishield/
 └── app/       Aplikasi Flutter
 ```
 
-**Backend** (PowerShell):
+Untuk membangun aplikasi dari kode (opsional): `cd cognishield/app`, `flutter create . --project-name cognishield --platforms=web,android` (sekali saja), `flutter pub get`, `flutter run -d chrome`. Di Android, jalankan `.\setup_android.ps1` sekali untuk memasang modul Notification Guard.
 
-```powershell
-cd cognishield/backend
-python -m venv .venv
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-python test_analyzer.py          # 8 tes otomatis
-python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
-```
-
-Dokumentasi API: <http://127.0.0.1:8000/docs>
-
-**Aplikasi:**
-
-```powershell
-cd cognishield/app
-flutter create . --project-name cognishield --platforms=web,android   # sekali saja
-flutter pub get
-flutter run -d chrome
-```
-
-Untuk Android (Notification Guard): jalankan `.\setup_android.ps1` sekali, lalu `flutter run`. Alamat server bisa diubah di **Settings → Backend Server**.
-
-**Endpoint utama:** `POST /analyze/auto` · `/analyze/url` · `/analyze/notification` · `/analyze/propaganda` · `GET /stats` · `/history` · `/categories` · `DELETE /history`.
+**Endpoint utama:** `POST /analyze/auto` · `/analyze/url` · `/analyze/notification` · `/analyze/propaganda` · `GET /health` · `/stats` · `/history` · `/categories` · `DELETE /history`.
 
 ---
 
 ## ⚠️ Batasan yang jujur
 
-- Mesin berbasis **aturan dan pola**, belum model machine learning. Penipuan baru dengan gaya bahasa lain bisa lolos, dan pesan sah yang mirip penipuan bisa ditandai. Hasilnya **skor risiko, bukan kepastian**.
-- Link **tidak dibuka** dan belum dicek ke database reputasi (mis. Google Safe Browsing).
+- Mesin berbasis **aturan, pola, dan heuristik**; belum ada model machine learning yang dilatih (slot IndoBERT sudah disiapkan tetapi belum aktif). Penipuan baru dengan gaya bahasa lain bisa lolos, dan pesan sah yang mirip penipuan bisa ditandai. Hasilnya **skor risiko, bukan kepastian**.
+- Link **tidak dibuka**. Tanpa API key VirusTotal, tautan hanya dinilai dari pola domain; dengan key, hasil bergantung pada kuota gratis dan pada tautan yang sudah dikenal VirusTotal. Belum diuji langsung ke layanan VirusTotal di lingkungan pengembangan ini (hanya dengan simulasi), jadi coba dulu dengan key milikmu.
 - Notification Guard hanya di **Android** dan butuh izin *Notification Access*.
 - Riwayat disimpan di memori server dan hilang saat server restart.
 
