@@ -16,9 +16,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 import analyzer
+import vt
 from analyzer import Analysis
 
-app = FastAPI(title="CogniShield API", version="2.0.0")
+app = FastAPI(title="CogniShield API", version="2.2.0")
+
+# VirusTotal aktif hanya jika VT_API_KEY diisi di lingkungan server (tidak pernah di kode).
+VT_ENABLED = vt.install(analyzer)
 
 # Needed so Flutter Web (Chrome) can call the API from another origin.
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
@@ -48,8 +52,13 @@ def _serialize(a: Analysis) -> dict:
         "reasons": a.reasons,
         "advice": a.advice,
         "engine": a.engine,
+        "confidence": a.confidence,
+        "agreement": a.agreement,
+        "cognitive_score": a.cognitive_score,
+        "tactics": [{k: t[k] for k in ("id", "name", "principle", "evidence")} for t in a.tactics],
+        "layers": [{k: l[k] for k in ("id", "name", "active", "fired", "score", "detail")} for l in a.layers],
         "links": [
-            {"url": u.url, "status": u.status, "level": u.level, "risk_score": u.risk, "reasons": u.reasons}
+            {"url": u.url, "status": u.status, "level": u.level, "risk_score": u.risk, "reasons": u.reasons, "vt": u.vt}
             for u in a.urls[:6]
         ],
         "url_info": {
@@ -87,6 +96,7 @@ def _run(req: ScanRequest, fn: Callable[[str], Analysis]) -> dict:
                 "categories": result["categories"],
                 "reasons": result["reasons"],
                 "advice": result["advice"],
+                "confidence": result["confidence"],
                 "links": len(result["links"]),
                 "time": datetime.now(timezone.utc).isoformat(),
             }
@@ -96,7 +106,7 @@ def _run(req: ScanRequest, fn: Callable[[str], Analysis]) -> dict:
 
 @app.get("/health")
 def health() -> dict:
-    return {"status": "ok", "service": "CogniShield", "version": app.version}
+    return {"status": "ok", "service": "CogniShield", "version": app.version, "virustotal": VT_ENABLED}
 
 
 @app.post("/analyze/auto")

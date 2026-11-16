@@ -58,6 +58,42 @@ class UrlInfo {
   }
 }
 
+class Tactic {
+  const Tactic({required this.name, required this.principle, required this.evidence});
+  final String name;
+  final String principle;
+  final String evidence;
+
+  factory Tactic.fromJson(Map<String, dynamic> j) => Tactic(
+        name: (j['name'] as String?) ?? '',
+        principle: (j['principle'] as String?) ?? '',
+        evidence: (j['evidence'] as String?) ?? '',
+      );
+}
+
+class ShieldLayer {
+  const ShieldLayer({
+    required this.id,
+    required this.name,
+    required this.active,
+    required this.fired,
+    required this.detail,
+  });
+  final String id;
+  final String name;
+  final bool active;
+  final bool fired;
+  final String detail;
+
+  factory ShieldLayer.fromJson(Map<String, dynamic> j) => ShieldLayer(
+        id: (j['id'] as String?) ?? '',
+        name: (j['name'] as String?) ?? '',
+        active: j['active'] == true,
+        fired: j['fired'] == true,
+        detail: (j['detail'] as String?) ?? '',
+      );
+}
+
 class ScanResult {
   const ScanResult({
     required this.kind,
@@ -71,7 +107,18 @@ class ScanResult {
     this.primary,
     this.categories = const [],
     this.links = const [],
+    this.confidence = 'tidak_ada_sinyal',
+    this.agreedLayers = 0,
+    this.totalLayers = 0,
+    this.tactics = const [],
+    this.layers = const [],
   });
+
+  final String confidence; // tinggi | sedang | rendah | sinyal_lemah | tidak_ada_sinyal
+  final int agreedLayers;
+  final int totalLayers;
+  final List<Tactic> tactics;
+  final List<ShieldLayer> layers;
 
   final String kind;
   final String label;
@@ -100,6 +147,17 @@ class ScanResult {
       links: ((j['links'] as List?) ?? const [])
           .whereType<Map<String, dynamic>>()
           .map(LinkVerdict.fromJson)
+          .toList(),
+      confidence: (j['confidence'] as String?) ?? 'tidak_ada_sinyal',
+      agreedLayers: ((j['agreement'] as Map?)?['fired'] as num?)?.toInt() ?? 0,
+      totalLayers: ((j['agreement'] as Map?)?['total'] as num?)?.toInt() ?? 0,
+      tactics: ((j['tactics'] as List?) ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .map(Tactic.fromJson)
+          .toList(),
+      layers: ((j['layers'] as List?) ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .map(ShieldLayer.fromJson)
           .toList(),
     );
   }

@@ -26,7 +26,7 @@ extension on ScanMode {
         ScanMode.auto =>
           'Paste anything: a message, notification, link or news. CogniShield checks it for phishing, scams, malware, account hijacking, gambling, extortion and more.',
         ScanMode.news => 'Paste a news text or viral chain message to check for hoax and propaganda patterns.',
-        ScanMode.link => 'Paste a link (bit.ly and other shorteners too). It is judged by domain patterns; the link is never opened.',
+        ScanMode.link => 'Paste a link (bit.ly and other shorteners too). It is judged by domain patterns, and checked on VirusTotal if the server has a key. The link is never opened.',
         ScanMode.message => 'Paste an SMS, chat or notification to spot scams and social engineering.',
       };
 

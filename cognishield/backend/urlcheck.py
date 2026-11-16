@@ -146,6 +146,7 @@ class UrlReport:
     status: str
     level: str
     reasons: list[str] = field(default_factory=list)
+    vt: Optional[dict] = None  # hasil reputasi VirusTotal (jika diaktifkan)
 
 
 def analyze_url(raw: str) -> UrlReport:

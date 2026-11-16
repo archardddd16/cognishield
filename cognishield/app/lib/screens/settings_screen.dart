@@ -57,7 +57,7 @@ class SettingsScreen extends StatelessWidget {
             'CogniShield v1.0.0\n\n'
             'AI-powered security & threat intelligence for hoaxes, phishing links and scam messages.\n\n'
             'This prototype analyzes text with rules and heuristics on your own backend server. '
-            'Links are judged by domain patterns and are never opened. '
+            'Links are judged by domain patterns and are never opened. If the server owner set a VirusTotal key, only the link address (not your message) is also checked on VirusTotal. '
             'Text you scan (and links copied while Clipboard Guard is on) is sent to that server only.',
           ),
         ),

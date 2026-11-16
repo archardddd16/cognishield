@@ -2,3 +2,6 @@ __pycache__/
 *.pyc
 .venv/
 cognishield/app/android/
+
+.venv/
+__pycache__/

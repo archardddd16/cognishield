@@ -351,6 +351,122 @@ class ResultCard extends StatelessWidget {
             advice: result.advice,
             links: result.links,
           ),
+          ShieldPanel(result: result),
+        ],
+      ),
+    );
+  }
+}
+
+/// Defense-in-depth report: which independent layers fired, plus manipulation tactics.
+class ShieldPanel extends StatelessWidget {
+  const ShieldPanel({super.key, required this.result});
+  final ScanResult result;
+
+  String get _confidenceLabel {
+    switch (result.confidence) {
+      case 'tinggi':
+        return 'Keyakinan tinggi';
+      case 'sedang':
+        return 'Keyakinan sedang';
+      case 'rendah':
+        return 'Keyakinan rendah';
+      case 'sinyal_lemah':
+        return 'Sinyal lemah';
+      default:
+        return 'Tidak ada sinyal';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final p = Palette.of(context);
+    if (result.layers.isEmpty) return const SizedBox.shrink();
+    final c = levelColor(result.level);
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(top: 14),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: p.card,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: p.line),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.layers_outlined, size: 20, color: kPrimary),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text('Lapisan pertahanan',
+                    style: TextStyle(fontWeight: FontWeight.w800, color: p.text)),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(color: c.soft(0.12), borderRadius: BorderRadius.circular(999)),
+                child: Text(_confidenceLabel,
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: c)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text('${result.agreedLayers} dari ${result.totalLayers} lapisan aktif sepakat',
+              style: TextStyle(color: p.muted, fontSize: 12.5)),
+          const SizedBox(height: 10),
+          for (final l in result.layers)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    !l.active
+                        ? Icons.remove_circle_outline
+                        : (l.fired ? Icons.warning_amber_rounded : Icons.check_circle_outline),
+                    size: 18,
+                    color: !l.active ? p.muted : (l.fired ? c : levelColor('safe')),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(l.name,
+                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: p.text)),
+                        Text(l.detail, style: TextStyle(fontSize: 12, color: p.muted, height: 1.3)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          if (result.tactics.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text('Taktik manipulasi terdeteksi',
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: p.text)),
+            const SizedBox(height: 6),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                for (final t in result.tactics)
+                  Tooltip(
+                    message: t.principle,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(color: p.tint, borderRadius: BorderRadius.circular(999)),
+                      child: Text('${t.name}: "${t.evidence}"',
+                          style: const TextStyle(fontSize: 12, color: kPrimary, fontWeight: FontWeight.w600)),
+                    ),
+                  ),
+              ],
+            ),
+          ],
+          const SizedBox(height: 6),
+          Text('Berbasis aturan dan pola, bukan kepastian.',
+              style: TextStyle(fontSize: 11.5, color: p.muted)),
         ],
       ),
     );
